@@ -3,7 +3,6 @@ package com.egen.solutions.assignment.entity;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import javax.xml.bind.annotation.XmlElement;
 import java.io.Serializable;
 
 /**
@@ -44,7 +43,6 @@ public class User implements Serializable {
     private char gender;
 
     @Column(name = "phone", nullable = false, length = 10)
-    @XmlElement(name = "phone")
     private int phone;
 
     /*Optional field, So nullable true*/
