@@ -12,10 +12,13 @@
 <h2>Available Restful Web Services</h2>
 <ul>
     <li>Creating a user -- /users POST Method with JSON data</li>
-    <li>Reading all users -- /users GET</li>
+    <li>Reading all users -- /users GET Method</li>
     <li>Updating a user -- /users PUT Method with JSON data</li>
     <li>Deleting a user -- /users/{id} DELETE Method with JSON data</li>
-    <li>Reading a single user -- /users/{id} GET</li>
+    <li>Reading a single user -- /users/{id} GET Method</li>
 </ul>
+
+<p>Note: Tested using Chrome Rest Client Postman, while deployed on Servlet Container
+    Apache Tomcat 8</p>
 </body>
 </html>

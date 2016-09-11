@@ -12,6 +12,12 @@ import java.util.List;
 /**
  * @author Rajasekhar
  *         IUserService.java implementation
+ *         <p>
+ *         Validates the domain objects and thus aware of the Business Logic. But unware of
+ *         implementation logic
+ *         <p>
+ *         Uses {@link IUserDAO} and can have different
+ *         implementations for different use cases
  */
 @Service("userService")
 public class UserServiceImpl implements IUserService {
