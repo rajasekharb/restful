@@ -7,6 +7,8 @@ import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
 import java.util.Locale;
 
 /**
+ * Useful for Json View
+ *
  * @author Rajasekhar
  */
 public class JsonViewResolver implements ViewResolver {

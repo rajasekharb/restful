@@ -16,12 +16,19 @@ import java.util.List;
 /**
  * @author Rajasekhar
  *         <p>
- *         Provides services for
- *         creating user -- /users POST Method with JSON data
- *         Reads all users -- /users GET
- *         Reads a single user -- /users/{id} GET
- *         updating user -- /users PUT Method with JSON data
- *         creating user -- /users POST Method with JSON data
+ *         <p>
+ *         Provides the following services
+ *         <p>
+ *         Creating a user -- /users POST Method with JSON data
+ *         Reading all users -- /users GET
+ *         Updating a user -- /users PUT Method with JSON data
+ *         <p>
+ *         Reading a single user -- /users/{id} GET
+ *         Deleting a user -- /users/{id} DELETE Method with JSON data
+ *         <p>
+ *         <p>
+ *         Uses a service {@link IUserService} and doesn't know anything about the
+ *         business layer logic
  */
 @RestController
 public class UserController {
@@ -32,6 +39,9 @@ public class UserController {
 
     @Inject
     //Java CDI
+    //Injecting a custom annotated implementation, we can resolve multiple interface
+    //implementations(CDI).
+    // In Spring we can use @Qualifier for the same purpose
     public UserController(IUserService userService) {
         this.userService = userService;
     }

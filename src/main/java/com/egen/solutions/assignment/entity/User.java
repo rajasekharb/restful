@@ -1,6 +1,5 @@
 package com.egen.solutions.assignment.entity;
 
-import com.egen.solutions.assignment.exceptions.InvalidDataException;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -66,7 +65,6 @@ public class User implements Serializable {
     }
 
     public void setId(String id) {
-        //UUID
         this.id = id;
     }
 
@@ -75,10 +73,6 @@ public class User implements Serializable {
     }
 
     public void setFirstName(String firstName) {
-        //Non null, only alphabet
-        if (firstName == null || !isAlpha(firstName)) {
-            throw new InvalidDataException("First name should be only alphabet and non null");
-        }
         this.firstName = firstName;
     }
 
@@ -87,16 +81,6 @@ public class User implements Serializable {
     }
 
     public void setMiddleName(String middleName) {
-        //Optional
-        if (middleName != null) {
-            //Allow empty middle name but not null
-            if ("".equals(middleName.trim())) {
-                this.middleName = middleName;
-                return;
-            } else if (!isAlpha(middleName)) {
-                throw new InvalidDataException("Middle name should have only alphabet");
-            }
-        }
         this.middleName = middleName;
     }
 
@@ -105,10 +89,6 @@ public class User implements Serializable {
     }
 
     public void setLastName(String lastName) {
-        if (lastName == null || !isAlpha(lastName)) {
-            throw new InvalidDataException("Last name should have only alphabet and be non null");
-        }
-
         this.lastName = lastName;
     }
 
@@ -117,11 +97,6 @@ public class User implements Serializable {
     }
 
     public void setAge(int age) {
-        //An assumption
-        //150 is too much :)
-        if (age > 150 || age <= 0) {
-            throw new InvalidDataException("Invalid data for age. Please enter valid positive number.");
-        }
         this.age = age;
     }
 
@@ -130,11 +105,7 @@ public class User implements Serializable {
     }
 
     public void setGender(char gender) {
-        if (gender == 'M' || gender == 'F') {
-            this.gender = gender;
-        } else {
-            throw new InvalidDataException("Accepted gender is only either M or F");
-        }
+        this.gender = gender;
     }
 
     public String getPhone() {
@@ -142,28 +113,6 @@ public class User implements Serializable {
     }
 
     public void setPhone(String phone) {
-        if (phone == null) {
-            throw new InvalidDataException("Phone number is null");
-        }
-
-        String trim = phone.trim();
-        if ("".equals(trim)) {
-            throw new IllegalArgumentException("Invalid argument for phone number");
-        }
-
-        if (!(trim.equals("0.0") || !phone.startsWith("-")) || trim.length() < 10) {
-            throw new InvalidDataException("Phone number should be 10 digit non zero number.");
-        }
-
-        try {
-            double signum = Math.signum(Double.parseDouble(phone));
-            if (signum == 0 || signum == -1) {
-                throw new InvalidDataException("Phone number should be 10 digit non zero number.");
-            }
-        } catch (NumberFormatException ex) {
-            throw new InvalidDataException("Phone number should be 10 digits number");
-        }
-
         this.phone = phone;
     }
 
@@ -187,9 +136,5 @@ public class User implements Serializable {
                 ", phone='" + phone + '\'' +
                 ", zip='" + zip + '\'' +
                 '}';
-    }
-
-    private boolean isAlpha(String name) {
-        return name.matches("[a-zA-Z]+");
     }
 }

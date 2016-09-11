@@ -2,6 +2,7 @@ package com.egen.solutions.assignment.services.impl;
 
 import com.egen.solutions.assignment.dao.IUserDAO;
 import com.egen.solutions.assignment.entity.User;
+import com.egen.solutions.assignment.exceptions.InvalidDataException;
 import com.egen.solutions.assignment.services.IUserService;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +18,6 @@ public class UserServiceImpl implements IUserService {
 
     private final IUserDAO userDAO;
 
-    /**
-     * Using a custom annotation, we can keep switching the implementation in CDI.
-     * <p>
-     * The same can be achieved in Spring using @Qualifier
-     *
-     * @param userDAO Implementation of DAO layer
-     */
     @Inject
     public UserServiceImpl(IUserDAO userDAO) {
         this.userDAO = userDAO;
@@ -31,12 +25,92 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public boolean isUserExists(User user) {
-        return this.userDAO.isUserExists(user);
+        return user.getPhone() != null && this.userDAO.isUserExists(user);
     }
 
     @Override
     public void createUser(User user) {
-        this.userDAO.createUser(user);
+        if (isValidData(user)) {
+            this.userDAO.createUser(user);
+        } else {
+            throw new InvalidDataException("One or more fields have invalid data");
+        }
+    }
+
+    private boolean isAlpha(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    private boolean isValidData(User user) {
+        String firstName = user.getFirstName();
+        //Non null, only alphabet
+        if (firstName == null || !isAlpha(firstName)) {
+            throw new InvalidDataException("First name should have only alphabet and " +
+                    "be non null");
+        }
+
+        String middleName = user.getMiddleName();
+        //Optional
+        if (middleName != null) {
+            //Allow empty middle name but not null
+            if (!isAlpha(middleName)) {
+                if (!"".equals(middleName.trim())) {
+                    throw new InvalidDataException("Middle name should have only alphabet");
+                }
+            }
+        }
+
+        String lastName = user.getLastName();
+        if (lastName == null || !isAlpha(lastName)) {
+            throw new InvalidDataException("Last name should have only " +
+                    "alphabet and be non null");
+        }
+
+        int age = user.getAge();
+        //An assumption
+        //101 is too much :-)
+        if (age > 101 || age <= 0) {
+            throw new InvalidDataException("Invalid data for age. Please enter valid " +
+                    "positive number.");
+        }
+
+        char gender = user.getGender();
+        if (!(gender == 'M' || gender == 'F')) {
+            throw new InvalidDataException("Accepted gender is only either M or F");
+        }
+
+        String phone = user.getPhone();
+
+        validatePhoneNumber(phone);
+        //Seems everything is okay
+        return true;
+    }
+
+    /**
+     * Uses Math.signum() to find positive or negative or zero
+     *
+     * @param phone 10 digit non zero number best represented by a String
+     * @see java.lang.Math
+     */
+    private void validatePhoneNumber(String phone) {
+        if (phone == null) {
+            throw new InvalidDataException("Phone number is null");
+        }
+
+        String trim = phone.trim();
+
+        if (trim.length() < 10) {
+            throw new InvalidDataException("Phone number should be 10 digit non zero number.");
+        }
+
+        try {
+            double signum = Math.signum(Double.parseDouble(trim));
+            if (signum == 0 || signum == -1) {
+                throw new InvalidDataException("Phone number should be 10 digit non zero number.");
+            }
+        } catch (NumberFormatException ex) {
+            throw new InvalidDataException("Phone number should be 10 digits number");
+        }
     }
 
     @Override
@@ -51,7 +125,11 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public void updateUser(User user) {
-        this.userDAO.updateUser(user);
+        if (isValidData(user)) {
+            this.userDAO.updateUser(user);
+        } else {
+            throw new InvalidDataException("One or more fields have invalid data");
+        }
     }
 
     @Override

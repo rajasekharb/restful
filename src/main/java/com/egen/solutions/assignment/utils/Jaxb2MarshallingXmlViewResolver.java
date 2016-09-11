@@ -8,6 +8,8 @@ import org.springframework.web.servlet.view.xml.MarshallingView;
 import java.util.Locale;
 
 /**
+ * Useful if we want XML output
+ *
  * @author Rajasekhar
  */
 public class Jaxb2MarshallingXmlViewResolver implements ViewResolver {

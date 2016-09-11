@@ -8,6 +8,14 @@
     <title>Welcome</title>
 </head>
 <body>
-<h1>Hello World!</h1>
+<h1>User Management Application.</h1>
+<h2>Available Restful Web Services</h2>
+<ul>
+    <li>Creating a user -- /users POST Method with JSON data</li>
+    <li>Reading all users -- /users GET</li>
+    <li>Updating a user -- /users PUT Method with JSON data</li>
+    <li>Deleting a user -- /users/{id} DELETE Method with JSON data</li>
+    <li>Reading a single user -- /users/{id} GET</li>
+</ul>
 </body>
 </html>
