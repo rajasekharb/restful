@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:oxm="http://www.springframework.org/schema/oxm"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/mvc
+       http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/oxm http://www.springframework.org/schema/oxm/spring-oxm.xsd">
+
+    <!-- DispatcherServlet Context -->
+    <context:component-scan base-package="com.egen.solutions.assignment"/>
+
+    <!-- Enables annotations -->
+    <mvc:annotation-driven/>
+
+    <!-- Reads the application.properties -->
+    <context:property-placeholder location="classpath:application.properties"/>
+
+    <!-- Handles HTTP GET requests for /resources/** by efficiently serving
+    up static resources in the ${webappRoot}/resources directory -->
+    <mvc:resources mapping="/resources/**" location="/resources/"/>
+
+    <oxm:jaxb2-marshaller id="marshaller">
+        <oxm:class-to-be-bound name="com.egen.solutions.assignment.entity.User"/>
+    </oxm:jaxb2-marshaller>
+
+    <bean id="contentNegotiationManager"
+          class="org.springframework.web.accept.ContentNegotiationManagerFactoryBean">
+        <property name="ignoreAcceptHeader" value="true"/>
+        <property name="favorPathExtension" value="true"/>
+        <property name="defaultContentType" value="application/json"/>
+        <property name="mediaTypes">
+            <map>
+                <entry key="json" value="application/json"/>
+                <entry key="xml" value="application/xml"/>
+            </map>
+        </property>
+    </bean>
+
+    <!--
+        View resolver that delegates to other view resolvers based on the content type
+    -->
+    <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
+        <!-- All configuration is now done by the manager - since Spring V3.2 -->
+        <property name="contentNegotiationManager" ref="contentNegotiationManager"/>
+        <property name="order" value="1"/>
+
+        <property name="viewResolvers">
+            <list>
+                <bean id="jsonViewResolver"
+                      class="com.egen.solutions.assignment.utils.JsonViewResolver"/>
+
+                <bean id="xmlViewResolver"
+                      class="com.egen.solutions.assignment.utils.Jaxb2MarshallingXmlViewResolver">
+                    <constructor-arg ref="marshaller"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Resolves the JSP views -->
+    <bean id="jspViewResolver" class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="contentType" value="text/html"/>
+        <property name="suffix" value="/WEB-INF/views/"/>
+        <property name="prefix" value=".jsp"/>
+        <property name="order" value="2"/>
+    </bean>
+
+    <!-- A high performance connection pool -->
+    <bean id="dataSource" class="com.zaxxer.hikari.HikariDataSource" destroy-method="close">
+        <property name="driverClassName" value="${hikari.driverClassName}"/>
+        <property name="jdbcUrl" value="${hikari.jdbcUrl}"/>
+        <property name="username" value="${hikari.username}"/>
+        <property name="password" value="${hikari.password}"/>
+    </bean>
+
+    <!-- Hibernate 4 SessionFactory Bean definition -->
+    <bean id="hibernate4AnnotatedSessionFactory"
+          class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+
+        <property name="annotatedClasses">
+            <list>
+                <value>com.egen.solutions.assignment.entity.User</value>
+            </list>
+        </property>
+
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+                <prop key="hibernate.show_sql">${hibernate.showSql}</prop>
+                <prop key="hibernate.format_sql">${hibernate.format_sql}</prop>
+                <prop key="hibernate.hbm2ddl.auto">${hibernate.hbm2ddl.auto}</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- Hibernate Transaction Manager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+        <property name="sessionFactory" ref="hibernate4AnnotatedSessionFactory"/>
+    </bean>
+
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>

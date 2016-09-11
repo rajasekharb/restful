@@ -46,7 +46,15 @@ public class IUserServiceTest {
     }
 
     @Test(expected = InvalidDataException.class)
-    public void createUserException() {
+    public void emptyLastNameTest() {
+        Mockito.when(userDAO.isUserExists(user)).thenReturn(false);
+        user.setFirstName("");
+        userService.createUser(user);
+        Mockito.verify(userDAO).createUser(user);
+    }
+
+    @Test(expected = InvalidDataException.class)
+    public void nullLastNameTest() {
         Mockito.when(userDAO.isUserExists(user)).thenReturn(true);
         user.setLastName(null);//Last name can't be null. So exception
         userService.createUser(user);
@@ -54,11 +62,27 @@ public class IUserServiceTest {
     }
 
     @Test(expected = InvalidDataException.class)
-    public void updateUserException() {
-        Mockito.when(userDAO.isUserExists(user)).thenReturn(true);
-        user.setPhone("94941Abcdf");
+    public void ageInvalidTest() {
+        Mockito.when(userDAO.isUserExists(user)).thenReturn(false);
+        user.setAge(102);
         userService.createUser(user);
         Mockito.verify(userDAO).createUser(user);
+    }
+
+    @Test(expected = InvalidDataException.class)
+    public void phoneNumberInvalidTest() {
+        Mockito.when(userDAO.isUserExists(user)).thenReturn(false);
+        user.setPhone("94941Abcdf");
+        userService.createUser(user);
+        Mockito.verify(userDAO).updateUser(user);
+    }
+
+    @Test(expected = InvalidDataException.class)
+    public void invalidGenderTest() {
+        Mockito.when(userDAO.isUserExists(user)).thenReturn(false);
+        user.setGender('H');
+        userService.createUser(user);
+        Mockito.verify(userDAO).updateUser(user);
     }
 
     @Configuration
