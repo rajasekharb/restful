@@ -15,6 +15,13 @@ import java.util.List;
 
 /**
  * @author Rajasekhar
+ *         <p>
+ *         Provides services for
+ *         creating user -- /users POST Method with JSON data
+ *         Reads all users -- /users GET
+ *         Reads a single user -- /users/{id} GET
+ *         updating user -- /users PUT Method with JSON data
+ *         creating user -- /users POST Method with JSON data
  */
 @RestController
 public class UserController {
@@ -47,6 +54,7 @@ public class UserController {
     }
 
     //Retrieves a user. Http Method Get
+    //Searches by using id
     @RequestMapping(value = "/users/{id}", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> getUser(@PathVariable("id") String id) {
@@ -64,6 +72,8 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    //Searches for user based on phone number provided. If found returns Conflict status
+    //Otherwise creates a new user and returns Ok status
     //Creates a user. Http Method Post
     @RequestMapping(value = "/users", method = RequestMethod.POST,
             produces = {MediaType.APPLICATION_JSON_VALUE},
@@ -80,11 +90,18 @@ public class UserController {
         return new ResponseEntity<>(status, HttpStatus.OK);
     }
 
+    //Finds user by id and if found, updates
     //Updates a user. Http Method Put
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT,
+    @RequestMapping(value = "/users", method = RequestMethod.PUT,
             produces = {MediaType.APPLICATION_JSON_VALUE},
             consumes = {MediaType.APPLICATION_JSON_VALUE})
-    public ResponseEntity<Status> updateUser(@PathVariable("id") String id, @RequestBody User user) {
+    public ResponseEntity<Status> updateUser(@RequestBody User user) {
+        String id = user.getId();
+        if (id == null) {
+            Status status = new Status(HttpStatus.BAD_REQUEST.toString(), "Missing user id");
+            return new ResponseEntity<>(status, HttpStatus.BAD_REQUEST);
+        }
+
         User currentUser = this.userService.getUserById(id);
         if (currentUser == null) {
             if (logger.isInfoEnabled()) {
