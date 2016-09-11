@@ -22,11 +22,15 @@ import java.util.List;
 @Service("userService")
 public class UserServiceImpl implements IUserService {
 
-    private final IUserDAO userDAO;
+    private IUserDAO userDAO;
 
     @Inject
     public UserServiceImpl(IUserDAO userDAO) {
         this.userDAO = userDAO;
+    }
+
+    //For mockito
+    public UserServiceImpl() {
     }
 
     @Override

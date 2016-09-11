@@ -21,11 +21,15 @@ import java.util.List;
 public class UserDAOImpl implements IUserDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(UserDAOImpl.class);
-    private final SessionFactory sessionFactory;
+    private SessionFactory sessionFactory;
 
     @Inject
     public UserDAOImpl(SessionFactory sessionFactory) {
         this.sessionFactory = sessionFactory;
+    }
+
+    //For mockito
+    public UserDAOImpl() {
     }
 
     @Override
