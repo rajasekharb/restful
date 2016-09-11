@@ -1,7 +1,6 @@
 package com.egen.solutions.assignment.dao;
 
 import com.egen.solutions.assignment.entity.User;
-import com.egen.solutions.assignment.utils.Status;
 
 import java.util.List;
 
@@ -13,7 +12,7 @@ public interface IUserDAO {
     boolean isUserExists(User user);
 
     /* Create */
-    Status createUser(User user);
+    void createUser(User user);
 
     /* Read */
     User getUserById(String id);
@@ -21,11 +20,8 @@ public interface IUserDAO {
     List<User> getAllUsers();
 
     /* Update */
-    Status updateUser(User user);
+    void updateUser(User user);
 
     /* Delete */
-    Status deleteUserById(String id);
-
-    Status deleteAllUsers();
-
+    void deleteUserById(String id);
 }

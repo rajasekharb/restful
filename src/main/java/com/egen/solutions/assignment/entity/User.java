@@ -1,5 +1,6 @@
 package com.egen.solutions.assignment.entity;
 
+import com.egen.solutions.assignment.exceptions.InvalidDataException;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
@@ -8,13 +9,16 @@ import java.io.Serializable;
 /**
  * @author Rajasekhar
  *         <p>
- *         Java Model Corresponding to database table "user" with columns
- *         id, first_name, middle_name, last_name, age, gender, phone, zip
+ *         Java Model Corresponding to database table "t_user" with columns
+ *         f_id, f_first_name, f_middle_name, f_last_name, f_age, f_gender, f_phone, f_zip
  *         <p>
- *         Database naming convention is all lower case words separated by underscores
+ *         Database naming convention is all lower case words separated by underscores.
+ *         <p>
+ *         Tables start with t and fields start with f
  */
 @Entity
-@Table(name = "user", uniqueConstraints = {@UniqueConstraint(columnNames = {"id"})})
+@Table(name = "t_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"f_id"})})
+@SuppressWarnings("unused")
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -23,38 +27,39 @@ public class User implements Serializable {
     @Id
     @GeneratedValue(generator = "uuid2")
     @GenericGenerator(name = "uuid2", strategy = "uuid2")
-    @Column(name = "id", unique = true, nullable = false)
+    @Column(name = "f_id", unique = true, nullable = false)
     private String id;
 
-    @Column(name = "first_name", nullable = false)
+    @Column(name = "f_first_name", nullable = false)
     private String firstName;
 
     /*Optional field, So nullable true*/
-    @Column(name = "middle_name")
+    @Column(name = "f_middle_name")
     private String middleName;
 
-    @Column(name = "last_name", nullable = false)
+    @Column(name = "f_last_name", nullable = false)
     private String lastName;
 
-    @Column(name = "age", nullable = false)
+    @Column(name = "f_age", nullable = false)
     private int age;
 
-    @Column(name = "gender", nullable = false)
+    @Column(name = "f_gender", nullable = false)
     private char gender;
 
-    @Column(name = "phone", nullable = false, length = 10)
-    private int phone;
+    @Column(name = "f_phone", nullable = false, length = 10)
+    //Chose String as Number type is too small
+    private String phone;
 
     /*Optional field, So nullable true*/
-    @Column(name = "zip")
+    @Column(name = "f_zip")
     private String zip;
 
-    /*-----------------------------------Start of Getters and Setters----------------------------------*/
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
+        //UUID
         this.id = id;
     }
 
@@ -63,6 +68,10 @@ public class User implements Serializable {
     }
 
     public void setFirstName(String firstName) {
+        //Non null, only alphabet
+        if (firstName == null || !isAlpha(firstName)) {
+            throw new InvalidDataException("First name should be only alphabet and non null");
+        }
         this.firstName = firstName;
     }
 
@@ -71,6 +80,12 @@ public class User implements Serializable {
     }
 
     public void setMiddleName(String middleName) {
+        //Optional
+        if (middleName != null) {
+            if (!isAlpha(middleName)) {
+                throw new InvalidDataException("Middle name should have only alphabet");
+            }
+        }
         this.middleName = middleName;
     }
 
@@ -79,6 +94,10 @@ public class User implements Serializable {
     }
 
     public void setLastName(String lastName) {
+        if (lastName == null || !isAlpha(lastName)) {
+            throw new InvalidDataException("Last name should have only alphabet and be non null");
+        }
+
         this.lastName = lastName;
     }
 
@@ -87,6 +106,9 @@ public class User implements Serializable {
     }
 
     public void setAge(int age) {
+        if (age > 150 || age <= 0) {//Even 150 is too much. :)
+            throw new InvalidDataException("Invalid data for age. Please enter valid positive number.");
+        }
         this.age = age;
     }
 
@@ -95,14 +117,40 @@ public class User implements Serializable {
     }
 
     public void setGender(char gender) {
-        this.gender = gender;
+        if (gender == 'M' || gender == 'F') {
+            this.gender = gender;
+        } else {
+            throw new InvalidDataException("Accepted gender is only either M or F");
+        }
     }
 
-    public int getPhone() {
+    public String getPhone() {
         return phone;
     }
 
-    public void setPhone(int phone) {
+    public void setPhone(String phone) {
+        if (phone == null) {
+            throw new InvalidDataException("Phone number is null");
+        }
+
+        String trim = phone.trim();
+        if ("".equals(trim)) {
+            throw new IllegalArgumentException("Invalid argument for phone number");
+        }
+
+        if (!(trim.equals("0.0") || !phone.startsWith("-")) || trim.length() < 10) {
+            throw new InvalidDataException("Phone number should be 10 digit non zero number.");
+        }
+
+        try {
+            double signum = Math.signum(Double.parseDouble(phone));
+            if (signum == 0 || signum == -1) {
+                throw new InvalidDataException("Phone number should be 10 digit non zero number.");
+            }
+        } catch (NumberFormatException ex) {
+            throw new InvalidDataException("Phone number should be 10 digits number");
+        }
+
         this.phone = phone;
     }
 
@@ -113,7 +161,6 @@ public class User implements Serializable {
     public void setZip(String zip) {
         this.zip = zip;
     }
-    /*-----------------------------------End of Getters and Setters----------------------------------*/
 
     @Override
     public String toString() {
@@ -124,8 +171,12 @@ public class User implements Serializable {
                 ", lastName='" + lastName + '\'' +
                 ", age=" + age +
                 ", gender=" + gender +
-                ", phone=" + phone +
+                ", phone='" + phone + '\'' +
                 ", zip='" + zip + '\'' +
                 '}';
+    }
+
+    private boolean isAlpha(String name) {
+        return name.matches("[a-zA-Z]+");
     }
 }

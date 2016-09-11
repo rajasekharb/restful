@@ -3,9 +3,9 @@ package com.egen.solutions.assignment.controller;
 import com.egen.solutions.assignment.entity.User;
 import com.egen.solutions.assignment.exceptions.UserExistsException;
 import com.egen.solutions.assignment.services.IUserService;
+import com.egen.solutions.assignment.utils.Status;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,20 +20,17 @@ import java.util.List;
 @RestController
 public class UserController {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
     //Field injection is not recommended. So using constructor injection
     private final IUserService userService;
 
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-
-    //Using Contexts and Dependency Injection (CDI), instead of Spring Autowired
     @Inject
-    //Using qualifier (Useful if we have multiple implementations)
-    //Using CDI to qualify an implementation, requires a custom annotation.
-    public UserController(@Qualifier(value = "userService") IUserService userService) {
+    //Java CDI
+    public UserController(IUserService userService) {
         this.userService = userService;
     }
 
-    //-------------------Retrieve All Users--------------------------------------------------------
+    //Retrieves all users. Http Method Get
     @RequestMapping(value = "/users", method = RequestMethod.GET)
     public ResponseEntity<List<User>> getAllUsers() {
         if (logger.isDebugEnabled()) {
@@ -50,8 +47,9 @@ public class UserController {
         return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
-    //-------------------Retrieve Single User--------------------------------------------------------
-    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+    //Retrieves a user. Http Method Get
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<User> getUser(@PathVariable("id") String id) {
         if (logger.isDebugEnabled()) {
             logger.debug(String.format("Received request to fetch user with id %s", id));
@@ -67,15 +65,49 @@ public class UserController {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 
+    //Creates a user. Http Method Post
     @RequestMapping(value = "/users", method = RequestMethod.POST,
-            produces = {MediaType.APPLICATION_JSON_UTF8_VALUE},
-            consumes = {MediaType.APPLICATION_JSON_UTF8_VALUE})
-    public User createUser(@RequestBody User user) {
-
+            produces = {MediaType.APPLICATION_JSON_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Status> createUser(@RequestBody User user) {
         if (!this.userService.isUserExists(user)) {
-            return this.userService.createUser(user);
+            this.userService.createUser(user);
         } else {
             throw new UserExistsException(String.format("User with id %s already exists!", user.getId()));
         }
+
+        Status status = new Status(HttpStatus.OK.toString(), "User is successfully created");
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    //Updates a user. Http Method Put
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.PUT,
+            produces = {MediaType.APPLICATION_JSON_VALUE},
+            consumes = {MediaType.APPLICATION_JSON_VALUE})
+    public ResponseEntity<Status> updateUser(@PathVariable("id") String id, @RequestBody User user) {
+        User currentUser = this.userService.getUserById(id);
+        if (currentUser == null) {
+            if (logger.isInfoEnabled()) {
+                logger.info(String.format("Couldn't find user with id %s", id));
+            }
+            Status status = new Status(HttpStatus.NOT_FOUND.toString(), "User not found");
+            return new ResponseEntity<>(status, HttpStatus.NOT_FOUND);
+        }
+
+        this.userService.updateUser(user);
+
+        Status status = new Status(HttpStatus.OK.toString(), "User is successfully updated");
+        return new ResponseEntity<>(status, HttpStatus.OK);
+    }
+
+    //Deletes a specific user. Http Method Delete
+    @RequestMapping(value = "/users/{id}", method = RequestMethod.DELETE)
+    public ResponseEntity<Status> deleteUser(@PathVariable("id") String id) {
+        if (logger.isDebugEnabled()) {
+            logger.debug(String.format("Received a request to delete the user with id %s", id));
+        }
+
+        this.userService.deleteUserById(id);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

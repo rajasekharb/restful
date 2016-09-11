@@ -3,12 +3,10 @@ package com.egen.solutions.assignment.services.impl;
 import com.egen.solutions.assignment.dao.IUserDAO;
 import com.egen.solutions.assignment.entity.User;
 import com.egen.solutions.assignment.services.IUserService;
-import com.egen.solutions.assignment.utils.Status;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.util.List;
 
 /**
@@ -16,48 +14,55 @@ import java.util.List;
  *         IUserService.java implementation
  */
 @Service("userService")
-@Transactional
 public class UserServiceImpl implements IUserService {
 
     private final IUserDAO userDAO;
 
+    /**
+     * Using a custom annotation, we can keep switching the implementation in CDI.
+     * <p>
+     * The same can be achieved in Spring using @Qualifier
+     *
+     * @param userDAO Implementation of DAO layer
+     */
     @Inject
-    public UserServiceImpl(@Qualifier("userDAO") IUserDAO userDAO) {
+    public UserServiceImpl(IUserDAO userDAO) {
         this.userDAO = userDAO;
     }
 
     @Override
+    @Transactional
     public boolean isUserExists(User user) {
         return this.userDAO.isUserExists(user);
     }
 
     @Override
-    public User createUser(User user) {
-        return null;
+    @Transactional
+    public void createUser(User user) {
+        this.userDAO.createUser(user);
     }
 
     @Override
+    @Transactional
     public User getUserById(String id) {
-        return null;
+        return this.userDAO.getUserById(id);
     }
 
     @Override
+    @Transactional
     public List<User> getAllUsers() {
-        return null;
+        return this.userDAO.getAllUsers();
     }
 
     @Override
-    public Status updateUser(User user) {
-        return null;
+    @Transactional
+    public void updateUser(User user) {
+        this.userDAO.updateUser(user);
     }
 
     @Override
-    public Status deleteUserById(String id) {
-        return null;
-    }
-
-    @Override
-    public Status deleteAllUsers() {
-        return null;
+    @Transactional
+    public void deleteUserById(String id) {
+        this.userDAO.deleteUserById(id);
     }
 }

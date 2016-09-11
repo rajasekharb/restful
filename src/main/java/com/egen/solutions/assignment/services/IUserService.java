@@ -1,7 +1,6 @@
 package com.egen.solutions.assignment.services;
 
 import com.egen.solutions.assignment.entity.User;
-import com.egen.solutions.assignment.utils.Status;
 
 import java.util.List;
 
@@ -15,7 +14,7 @@ public interface IUserService {
     boolean isUserExists(User user);
 
     /* Create */
-    User createUser(User user);
+    void createUser(User user);
 
     /* Read */
     User getUserById(String id);
@@ -23,10 +22,8 @@ public interface IUserService {
     List<User> getAllUsers();
 
     /* Update */
-    Status updateUser(User user);
+    void updateUser(User user);
 
     /* Delete */
-    Status deleteUserById(String id);
-
-    Status deleteAllUsers();
+    void deleteUserById(String id);
 }

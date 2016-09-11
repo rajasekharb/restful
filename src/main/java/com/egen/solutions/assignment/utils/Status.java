@@ -7,19 +7,20 @@ package com.egen.solutions.assignment.utils;
  *         <p>
  *         Instead of void as return type, this class is used wherever required
  */
+@SuppressWarnings("unused")
 public class Status {
 
     /**
      * Http status code
      */
-    private int code;
+    private String code;
 
     /**
      * Http response message
      */
     private String message;
 
-    public Status(int code, String message) {
+    public Status(String code, String message) {
         this.code = code;
         this.message = message;
     }
@@ -27,11 +28,11 @@ public class Status {
     public Status() {
     }
 
-    public int getCode() {
+    public String getCode() {
         return code;
     }
 
-    public void setCode(int code) {
+    public void setCode(String code) {
         this.code = code;
     }
 
@@ -41,13 +42,5 @@ public class Status {
 
     public void setMessage(String message) {
         this.message = message;
-    }
-
-    @Override
-    public String toString() {
-        return "Status{" +
-                "code=" + code +
-                ", message='" + message + '\'' +
-                '}';
     }
 }
