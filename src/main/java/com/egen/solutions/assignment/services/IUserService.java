@@ -1,6 +1,7 @@
 package com.egen.solutions.assignment.services;
 
 import com.egen.solutions.assignment.entity.User;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -9,7 +10,10 @@ import java.util.List;
  *         <p>
  *         User service Interface that abstracts the underlying data access implementation
  */
+@Service
 public interface IUserService {
+
+    List<User> getAllUsers();
 
     boolean isUserExists(User user);
 
@@ -18,8 +22,6 @@ public interface IUserService {
 
     /* Read */
     User getUserById(String id);
-
-    List<User> getAllUsers();
 
     /* Update */
     void updateUser(User user);

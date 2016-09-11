@@ -1,7 +1,6 @@
 package com.egen.solutions.assignment.controller;
 
 import com.egen.solutions.assignment.entity.User;
-import com.egen.solutions.assignment.exceptions.UserExistsException;
 import com.egen.solutions.assignment.services.IUserService;
 import com.egen.solutions.assignment.utils.Status;
 import org.slf4j.Logger;
@@ -73,7 +72,8 @@ public class UserController {
         if (!this.userService.isUserExists(user)) {
             this.userService.createUser(user);
         } else {
-            throw new UserExistsException(String.format("User with id %s already exists!", user.getId()));
+            Status status = new Status(HttpStatus.CONFLICT.toString(), "User is already present");
+            return new ResponseEntity<>(status, HttpStatus.CONFLICT);
         }
 
         Status status = new Status(HttpStatus.OK.toString(), "User is successfully created");
@@ -108,6 +108,7 @@ public class UserController {
         }
 
         this.userService.deleteUserById(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        Status status = new Status(HttpStatus.OK.toString(), "User deleted successfully");
+        return new ResponseEntity<>(status, HttpStatus.OK);
     }
 }

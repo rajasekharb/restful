@@ -8,6 +8,7 @@ import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.inject.Inject;
 import java.util.ArrayList;
@@ -28,24 +29,32 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    @Transactional
     public boolean isUserExists(User user) {
         Session currentSession = this.sessionFactory.getCurrentSession();
-        Query query = currentSession.createQuery("from User where User.id = :userId");
-        query.setParameter("userId", user.getId());
-        Object uniqueResult = query.uniqueResult();
-        if (logger.isDebugEnabled()) {
-            logger.debug("Result of query ", uniqueResult);
+        Query query = currentSession.createQuery("from User where phone = :phoneNumber");
+        List phoneNumberList = query.setParameter("phoneNumber", user.getPhone()).list();
+
+        if (phoneNumberList.size() != 0) {
+            return true;
+        } else {
+            return false;
         }
-        return (uniqueResult != null);
     }
 
     @Override
+    @Transactional
     public void createUser(User user) {
         Session currentSession = this.sessionFactory.getCurrentSession();
         currentSession.persist(user);
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("Created user successfully");
+        }
     }
 
     @Override
+    @Transactional
     public void updateUser(User user) {
         Session currentSession = this.sessionFactory.getCurrentSession();
         currentSession.update(user);
@@ -56,10 +65,10 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    @Transactional
     public List<User> getAllUsers() {
         Session currentSession = this.sessionFactory.getCurrentSession();
-        List<User> list = currentSession.createQuery("from User").list();
-
+        @SuppressWarnings("unchecked") List<User> list = currentSession.createQuery("from User").list();
         if (logger.isDebugEnabled()) {
             logger.debug("Returning details of all users ", list);
         }
@@ -72,26 +81,22 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     @Override
+    @Transactional
     public User getUserById(String id) {
         Session currentSession = this.sessionFactory.getCurrentSession();
-        User user = (User) currentSession.load(User.class, id);
-        if (logger.isDebugEnabled()) {
-            logger.debug("Found the user with id ", id);
-        }
-
-        return user;
+        return (User) currentSession.get(User.class, id);
     }
 
     @Override
+    @Transactional
     public void deleteUserById(String id) {
         Session currentSession = this.sessionFactory.getCurrentSession();
-        User user = (User) currentSession.load(User.class, new Integer(id));
+        User user = (User) currentSession.get(User.class, id);
         if (user != null) {
             currentSession.delete(user);
-        }
-
-        if (logger.isDebugEnabled()) {
-            logger.info("User deleted successfully, user details are " + user);
+            if (logger.isDebugEnabled()) {
+                logger.info("User deleted successfully, user details are " + user);
+            }
         }
     }
 }

@@ -1,7 +1,11 @@
 package com.egen.solutions.assignment.entity;
 
 import com.egen.solutions.assignment.exceptions.InvalidDataException;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import org.hibernate.annotations.GenericGenerator;
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -17,8 +21,11 @@ import java.io.Serializable;
  *         Tables start with t and fields start with f
  */
 @Entity
-@Table(name = "t_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"f_id"})})
+@Component
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @SuppressWarnings("unused")
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+@Table(name = "t_user", uniqueConstraints = {@UniqueConstraint(columnNames = {"f_id"})})
 public class User implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -82,7 +89,11 @@ public class User implements Serializable {
     public void setMiddleName(String middleName) {
         //Optional
         if (middleName != null) {
-            if (!isAlpha(middleName)) {
+            //Allow empty middle name but not null
+            if ("".equals(middleName.trim())) {
+                this.middleName = middleName;
+                return;
+            } else if (!isAlpha(middleName)) {
                 throw new InvalidDataException("Middle name should have only alphabet");
             }
         }
@@ -106,7 +117,9 @@ public class User implements Serializable {
     }
 
     public void setAge(int age) {
-        if (age > 150 || age <= 0) {//Even 150 is too much. :)
+        //An assumption
+        //150 is too much :)
+        if (age > 150 || age <= 0) {
             throw new InvalidDataException("Invalid data for age. Please enter valid positive number.");
         }
         this.age = age;
