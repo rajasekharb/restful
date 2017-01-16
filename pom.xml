@@ -13,7 +13,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <!-- All properties are placed here to manage the versions-->
-        <jdk.version>1.7</jdk.version>
+        <jdk.version>1.8</jdk.version>
         <spring.version>4.3.2.RELEASE</spring.version>
         <hibernate-core.version>4.3.11.Final</hibernate-core.version>
 
